@@ -7,8 +7,7 @@ public final class TaskManager {
     private static int taskId=0;
 
     public static int generateTaskId(){
-        taskId++;
-        return taskId;
+        return ++taskId;
     }
 
     public void deleteAllTasks(){
@@ -20,8 +19,15 @@ public final class TaskManager {
     }
 
     public void deleteTaskById(int taskId){
-        if(tasks.containsKey(taskId))
-            tasks.remove(taskId);
+        if(tasks.containsKey(taskId)){
+            if(tasks.get(taskId).getClass()==Epic.class){
+                ArrayList<Subtask> subtasks=((Epic)tasks.get(taskId)).getSubtasks();
+                for(int i=0;i<subtasks.size();i++)
+                    tasks.remove(subtasks.get(i).getUniqueTaskId());
+                tasks.remove(taskId);
+
+            }
+        }
     }
 
     public void updateTask(Object task){
@@ -44,17 +50,17 @@ public final class TaskManager {
         return new ArrayList<Subtask>();
     }
 
-    public void addAnyTask(TaskType type,Object anyTask){
-        switch (type) {
-            case TASK:
+    public void addAnyTask(Object anyTask){
+        switch (anyTask.getClass().getName()) {
+            case "Task":
                 if (anyTask.getClass() == Task.class)
                     addTask((Task) anyTask);
                 break;
-            case SUBTASK:
+            case "Subtask":
                 if (anyTask.getClass() == Subtask.class)
                     addSubtask((Subtask) anyTask);
                 break;
-            case EPIC:
+            case "Epic":
                 if (anyTask.getClass() == Epic.class)
                     addEpic((Epic) anyTask);
                 break;
