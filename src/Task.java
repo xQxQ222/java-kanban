@@ -3,16 +3,17 @@ import java.util.Objects;
 public class Task {
     private String name;
     private String description;
-    private final int uniqueTaskId;
+    protected final int uniqueTaskId;
     private TaskStatus taskStatus;
 
 
-    public Task(String name, int uniqueTaskId, String description,TaskStatus taskStatus) {
+    public Task(String name, String description,TaskStatus taskStatus) {
         this.name = name;
-        this.uniqueTaskId = uniqueTaskId;
+        uniqueTaskId=TaskManager.generateTaskId();
         this.description = description;
         this.taskStatus = taskStatus;
     }
+
 
     public String getName() {
         return name;
@@ -64,4 +65,5 @@ public class Task {
                 ", taskStatus=" + taskStatus +
                 '}';
     }
+
 }
