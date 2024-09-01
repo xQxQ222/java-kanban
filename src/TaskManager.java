@@ -24,8 +24,24 @@ public final class TaskManager {
             tasks.remove(taskId);
     }
 
-    public void updateTask(){
+    public void updateTask(Object task){
+        int taskId=((Task)task).getUniqueTaskId();
+        if(tasks.containsKey(taskId) && task.getClass()==tasks.get((taskId)).getClass()) {
+            tasks.put(taskId, task);
+            if(task.getClass()==Epic.class)
+                ((Epic) task).setTaskStatus(((Epic) task).calculateEpicStatus());
+            if(task.getClass()==Subtask.class) {
+                Epic epic=(Epic) tasks.get(((Subtask) task).getEpicId());
+                epic.setTaskStatus(epic.calculateEpicStatus());
+            }
+        }
+    }
 
+    public ArrayList<Subtask> getSubtasksByEpicId(int epicId){
+        Object task=tasks.get(epicId);
+        if(task!=null && task.getClass()==Epic.class)
+            return ((Epic) task).getSubtasks();
+        return new ArrayList<Subtask>();
     }
 
     public void addAnyTask(TaskType type,Object anyTask){
@@ -58,7 +74,8 @@ public final class TaskManager {
         if(epic==null)
             return;
         epic.addSubtask(subtask);
-        epic.calculateEpicStatus();
+        epic.setTaskStatus(epic.calculateEpicStatus());
+        tasks.put(subtask.getUniqueTaskId(),subtask);
     }
 
     private void addEpic(Epic epic){

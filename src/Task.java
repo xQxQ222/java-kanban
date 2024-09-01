@@ -1,10 +1,10 @@
 import java.util.Objects;
 
 public class Task {
-    private String name;
-    private String description;
+    protected String name;
+    protected String description;
     protected final int uniqueTaskId;
-    private TaskStatus taskStatus;
+    protected TaskStatus taskStatus;
 
 
     public Task(String name, String description,TaskStatus taskStatus) {
@@ -63,7 +63,7 @@ public class Task {
                 ", description='" + description + '\'' +
                 ", uniqueTaskId=" + uniqueTaskId +
                 ", taskStatus=" + taskStatus +
-                '}';
+                "}";
     }
 
 }

@@ -2,11 +2,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Epic extends Task{
-    private final ArrayList<Subtask> subtasks=new ArrayList<>();
+    private ArrayList<Subtask> subtasks=new ArrayList<>();
 
     public Epic(String name,String description) {
         super(name, description, TaskStatus.NEW);
+    }
 
+    public Epic(String name,String description, ArrayList<Subtask> newSubtasks){
+        super(name,description,TaskStatus.NEW);
+        this.setTaskStatus(calculateEpicStatus());
+        subtasks=newSubtasks;
     }
 
 
@@ -18,18 +23,17 @@ public class Epic extends Task{
         return subtasks;
     }
 
-    public void calculateEpicStatus(){
+    public TaskStatus calculateEpicStatus(){
         if(subtasks.isEmpty()){
-            this.setTaskStatus(TaskStatus.NEW);
-            return;
+            return TaskStatus.NEW;
         }
         var statuses=getSubtasksStatuses();
         if(!statuses.contains(TaskStatus.DONE) && !statuses.contains(TaskStatus.IN_PROGRESS))
-            this.setTaskStatus(TaskStatus.NEW);
+            return TaskStatus.NEW;
         else if(statuses.contains(TaskStatus.IN_PROGRESS) || statuses.contains(TaskStatus.NEW))
-            this.setTaskStatus(TaskStatus.IN_PROGRESS);
+            return TaskStatus.IN_PROGRESS;
         else
-            this.setTaskStatus(TaskStatus.DONE);
+            return TaskStatus.DONE;
     }
 
     protected ArrayList<TaskStatus> getSubtasksStatuses(){
@@ -37,5 +41,16 @@ public class Epic extends Task{
         for(Subtask subtask : subtasks)
             statuses.add(subtask.getTaskStatus());
         return statuses;
+    }
+
+    @Override
+    public String toString() {
+        return "Epic{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", uniqueTaskId=" + uniqueTaskId +
+                ", taskStatus=" + taskStatus +
+                ", subtasks=" + subtasks+
+                "}";
     }
 }
