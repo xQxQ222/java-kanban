@@ -1,17 +1,20 @@
+package ru.yandex.javacource.korolkov.schedule.Task;
+
+import ru.yandex.javacource.korolkov.schedule.manager.TaskManager;
+
 import java.util.Objects;
 
 public class Task {
     protected String name;
     protected String description;
-    protected final int uniqueTaskId;
-    protected TaskStatus taskStatus;
+    protected int id;
+    protected TaskStatus status;
 
 
-    public Task(String name, String description,TaskStatus taskStatus) {
+    public Task(String name, String description, TaskStatus taskStatus) {
         this.name = name;
-        uniqueTaskId=TaskManager.generateTaskId();
         this.description = description;
-        this.taskStatus = taskStatus;
+        this.status = taskStatus;
     }
 
 
@@ -23,12 +26,12 @@ public class Task {
         return description;
     }
 
-    public int getUniqueTaskId() {
-        return uniqueTaskId;
+    public int getId() {
+        return id;
     }
 
     public TaskStatus getTaskStatus() {
-        return taskStatus;
+        return status;
     }
 
     public void setDescription(String description) {
@@ -36,7 +39,7 @@ public class Task {
     }
 
     public void setTaskStatus(TaskStatus taskStatus) {
-        this.taskStatus = taskStatus;
+        this.status = taskStatus;
     }
 
     @Override
@@ -44,12 +47,12 @@ public class Task {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return uniqueTaskId == task.uniqueTaskId;
+        return id == task.id;
     }
 
     @Override
     public final int hashCode() {
-        return Objects.hashCode(uniqueTaskId);
+        return Objects.hashCode(id);
     }
 
     public void setName(String name) {
@@ -61,9 +64,20 @@ public class Task {
         return "Task{" +
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", uniqueTaskId=" + uniqueTaskId +
-                ", taskStatus=" + taskStatus +
+                ", id=" + id +
+                ", status=" + status +
                 "}";
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public TaskStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TaskStatus status) {
+        this.status = status;
+    }
 }
