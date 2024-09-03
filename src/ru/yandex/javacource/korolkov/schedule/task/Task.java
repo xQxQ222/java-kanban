@@ -1,6 +1,4 @@
-package ru.yandex.javacource.korolkov.schedule.Task;
-
-import ru.yandex.javacource.korolkov.schedule.manager.TaskManager;
+package ru.yandex.javacource.korolkov.schedule.task;
 
 import java.util.Objects;
 
@@ -17,9 +15,12 @@ public class Task {
         this.status = taskStatus;
     }
 
-
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
@@ -38,8 +39,16 @@ public class Task {
         this.description = description;
     }
 
-    public void setTaskStatus(TaskStatus taskStatus) {
-        this.status = taskStatus;
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public TaskStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TaskStatus status) {
+        this.status = status;
     }
 
     @Override
@@ -55,9 +64,6 @@ public class Task {
         return Objects.hashCode(id);
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
 
     @Override
     public String toString() {
@@ -69,15 +75,5 @@ public class Task {
                 "}";
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
 
-    public TaskStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(TaskStatus status) {
-        this.status = status;
-    }
 }

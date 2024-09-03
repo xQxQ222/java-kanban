@@ -1,4 +1,4 @@
-package ru.yandex.javacource.korolkov.schedule.Task;
+package ru.yandex.javacource.korolkov.schedule.task;
 
 public enum TaskStatus {
     NEW,
