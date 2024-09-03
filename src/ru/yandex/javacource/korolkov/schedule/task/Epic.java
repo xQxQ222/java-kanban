@@ -1,29 +1,39 @@
-package ru.yandex.javacource.korolkov.schedule.Task;
-
-import ru.yandex.javacource.korolkov.schedule.manager.TaskManager;
+package ru.yandex.javacource.korolkov.schedule.task;
 
 import java.util.ArrayList;
 
 public class Epic extends Task {
 
-    public ArrayList<Integer> getSubtasksIds() {
-        return subtasksIds;
-    }
-
-    private ArrayList<Integer> subtasksIds = new ArrayList<>();
+    private ArrayList<Integer> subtasksIds;
 
     public Epic(String name, String description) {
         super(name, description, TaskStatus.NEW);
+        subtasksIds = new ArrayList<>();
     }
 
     public Epic(String name, String description, ArrayList<Integer> newSubtasksIds) {
         super(name, description, TaskStatus.NEW);
-
         subtasksIds = newSubtasksIds;
+    }
+
+    public ArrayList<Integer> getSubtasksIds() {
+        return subtasksIds;
+    }
+
+    public void setSubtasksIds(ArrayList<Integer> subtasksIds) {
+        this.subtasksIds = subtasksIds;
     }
 
     public void addSubtask(Subtask subtask) {
         subtasksIds.add(subtask.getId());
+    }
+
+    public void clearSubtasksIds() {
+        subtasksIds.clear();
+    }
+
+    public void deleteSubtaskFromEpic(int subtaskId) {
+        subtasksIds.remove((Object) subtaskId);
     }
 
     @Override
@@ -35,9 +45,5 @@ public class Epic extends Task {
                 ", status=" + status +
                 ", subtasksIds=" + subtasksIds +
                 "}";
-    }
-
-    public void setSubtasksIds(ArrayList<Integer> subtasksIds) {
-        this.subtasksIds = subtasksIds;
     }
 }

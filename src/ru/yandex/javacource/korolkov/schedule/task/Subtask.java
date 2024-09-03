@@ -1,4 +1,4 @@
-package ru.yandex.javacource.korolkov.schedule.Task;
+package ru.yandex.javacource.korolkov.schedule.task;
 
 public class Subtask extends Task {
     private int epicId;
@@ -12,6 +12,10 @@ public class Subtask extends Task {
         return epicId;
     }
 
+    public void setEpicId(int epicId) {
+        this.epicId = epicId;
+    }
+
     @Override
     public String toString() {
         return "Subtask{" +
@@ -21,9 +25,5 @@ public class Subtask extends Task {
                 ", id=" + id +
                 ", status=" + status +
                 "}";
-    }
-
-    public void setEpicId(int epicId) {
-        this.epicId = epicId;
     }
 }
