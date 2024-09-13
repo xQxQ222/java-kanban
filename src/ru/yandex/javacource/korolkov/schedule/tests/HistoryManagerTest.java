@@ -22,6 +22,7 @@ public class HistoryManagerTest {
     @Test
     public void isHistorySaveAnything(){
         Task task = new Task("Тест","Тест", TaskStatus.NEW);
+        manager.addTask(task);
         assertEquals(0,manager.getHistory().size());
         manager.getTaskById(1);
         assertEquals(1,manager.getHistory().size());
