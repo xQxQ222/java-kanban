@@ -13,7 +13,9 @@ public class Subtask extends Task {
     }
 
     public void setEpicId(int epicId) {
-        this.epicId = epicId;
+        if(epicId!=this.id) {
+            this.epicId = epicId;
+        }
     }
 
     @Override
@@ -25,5 +27,10 @@ public class Subtask extends Task {
                 ", id=" + id +
                 ", status=" + status +
                 "}";
+    }
+
+    @Override
+    public Subtask getCopy(){
+        return new Subtask(this.name,this.description,this.status,this.epicId);
     }
 }

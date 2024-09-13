@@ -46,4 +46,9 @@ public class Epic extends Task {
                 ", subtasksIds=" + subtasksIds +
                 "}";
     }
+
+    @Override
+    public Epic getCopy(){
+        return new Epic(this.name,this.description,this.getSubtasksIds());
+    }
 }
