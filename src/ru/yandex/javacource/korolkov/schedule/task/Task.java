@@ -2,7 +2,7 @@ package ru.yandex.javacource.korolkov.schedule.task;
 
 import java.util.Objects;
 
-public class Task {
+public class Task implements Cloned<Task> {
     protected String name;
     protected String description;
     protected int id;
@@ -13,6 +13,14 @@ public class Task {
         this.name = name;
         this.description = description;
         this.status = taskStatus;
+        this.id=-1;
+    }
+
+    public Task(String name, String description, TaskStatus status, int id){
+        this.name=name;
+        this.id=id;
+        this.description=description;
+        this.status=status;
     }
 
     public String getName() {
@@ -76,4 +84,8 @@ public class Task {
     }
 
 
+    @Override
+    public Task getCopy() {
+        return new Task(this.name,this.description,this.status,this.id);
+    }
 }
