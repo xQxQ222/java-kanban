@@ -3,25 +3,31 @@ package ru.yandex.javacource.korolkov.schedule.history;
 import ru.yandex.javacource.korolkov.schedule.task.Task;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
-    private final ArrayList<Task> historyViewedElements;
+    private final List<Task> history;
+
+    public static final int MAX_SIZE = 10;
 
     public InMemoryHistoryManager() {
-        historyViewedElements = new ArrayList<>();
+        history = new ArrayList<>();
     }
 
     @Override
-    public ArrayList<Task> getHistory() {
-        return historyViewedElements;
+    public List<Task> getHistory() {
+        return history;
     }
 
     @Override
     public void add(Task task) {
-        if (historyViewedElements.size() == 10) {
-            historyViewedElements.removeFirst();
+        if (task == null) {
+            return;
         }
-        historyViewedElements.add(task);
+        if (history.size() == MAX_SIZE) {
+            history.removeFirst();
+        }
+        history.add(task);
     }
 }

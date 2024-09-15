@@ -1,53 +1,52 @@
 package ru.yandex.javacource.korolkov.schedule.manager;
 
-import ru.yandex.javacource.korolkov.schedule.history.HistoryManager;
 import ru.yandex.javacource.korolkov.schedule.task.Epic;
 import ru.yandex.javacource.korolkov.schedule.task.Subtask;
 import ru.yandex.javacource.korolkov.schedule.task.Task;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 public interface TaskManager {
 
-    public ArrayList<? extends Task> getHistory();
+    List<? extends Task> getHistory();
 
-    public void deleteAllTasks();
+    void deleteAllTasks();
 
-    public void deleteAllSubtasks();
+    void deleteAllSubtasks();
 
-    public void deleteAllEpics();
+    void deleteAllEpics();
 
-    public void deleteTaskById(int taskId);
+    void deleteTaskById(int taskId);
 
-    public void deleteSubtaskById(int subtaskId);
+    void deleteSubtaskById(int subtaskId);
 
-    public void deleteEpicById(int epicId);
+    void deleteEpicById(int epicId);
 
-    public Task getTaskById(int taskId);
+    Task getTaskById(int taskId);
 
-    public Subtask getSubtaskById(int subtaskId);
+    Subtask getSubtaskById(int subtaskId);
 
-    public Epic getEpicById(int epicId);
+    Epic getEpicById(int epicId);
 
-    public ArrayList<Task> getAllTasks();
+    List<Task> getAllTasks();
 
-    public ArrayList<Subtask> getAllSubtasks();
+    List<Subtask> getAllSubtasks();
 
-    public ArrayList<Epic> getAllEpics();
+    List<Epic> getAllEpics();
 
-    public int addTask(Task task);
+    int addTask(Task task);
 
-    public int addSubtask(Subtask subtask);
+    int addSubtask(Subtask subtask);
 
-    public int addEpic(Epic epic);
+    int addEpic(Epic epic);
 
-    public void updateTask(Task task);
+    void updateTask(Task task);
 
-    public void updateSubtask(Subtask subtask);
+    void updateSubtask(Subtask subtask);
 
-    public void updateEpic(Epic epic);
+    void updateEpic(Epic epic);
 
-    public ArrayList<Subtask> getEpicSubtasks(int epicId);
+    List<Subtask> getEpicSubtasks(int epicId);
 
 }
