@@ -2,10 +2,10 @@ package ru.yandex.javacource.korolkov.schedule.history;
 
 import ru.yandex.javacource.korolkov.schedule.task.Task;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public interface HistoryManager {
-    public ArrayList<? extends Task> getHistory();
+    List<? extends Task> getHistory();
 
-    public void add(Task task);
+    void add(Task task);
 }

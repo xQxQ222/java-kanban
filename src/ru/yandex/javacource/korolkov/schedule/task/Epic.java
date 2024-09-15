@@ -48,7 +48,7 @@ public class Epic extends Task {
     }
 
     @Override
-    public Epic getCopy(){
-        return new Epic(this.name,this.description,this.getSubtasksIds());
+    public Epic getCopy() {
+        return new Epic(this.name, this.description, this.getSubtasksIds());
     }
 }

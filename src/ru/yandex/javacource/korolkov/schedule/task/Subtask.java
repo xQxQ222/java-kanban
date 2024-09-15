@@ -13,7 +13,7 @@ public class Subtask extends Task {
     }
 
     public void setEpicId(int epicId) {
-        if(epicId!=this.id) {
+        if (epicId != this.id) {
             this.epicId = epicId;
         }
     }
@@ -30,7 +30,7 @@ public class Subtask extends Task {
     }
 
     @Override
-    public Subtask getCopy(){
-        return new Subtask(this.name,this.description,this.status,this.epicId);
+    public Subtask getCopy() {
+        return new Subtask(this.name, this.description, this.status, this.epicId);
     }
 }
