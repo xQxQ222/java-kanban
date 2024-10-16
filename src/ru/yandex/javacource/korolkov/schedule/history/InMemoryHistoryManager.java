@@ -1,33 +1,67 @@
 package ru.yandex.javacource.korolkov.schedule.history;
 
+import ru.yandex.javacource.korolkov.schedule.manager.Node;
 import ru.yandex.javacource.korolkov.schedule.task.Task;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
-    private final List<Task> history;
-
-    public static final int MAX_SIZE = 10;
+    private final Map<Integer, Node> history;
+    public Node tail;
+    public Node head;
 
     public InMemoryHistoryManager() {
-        history = new ArrayList<>();
+        history = new LinkedHashMap<>();
     }
 
     @Override
     public List<Task> getHistory() {
-        return history;
+        List<Task> result=new ArrayList<>();
+        for(Node node : history.values()){
+            result.add(node.value);
+        }
+        return result;
     }
 
     @Override
     public void add(Task task) {
-        if (task == null) {
-            return;
+        int taskId=task.getId();
+
+        if (history.containsKey(taskId)) {
+
+            removeNode(history.get(taskId));
         }
-        if (history.size() == MAX_SIZE) {
-            history.removeFirst();
+        Node node = new Node(task);
+        if (head == null) {
+            head = node;
+        } else {
+            tail.next = node;
+            node.prev = tail;
         }
-        history.add(task);
+        tail = node;
+
+        node.id=taskId;
+        history.put(taskId, node);
     }
+
+    @Override
+    public void removeNode(Node node) {
+        if (node.equals(head)) {
+            head = node.next;
+            if (head != null) {
+                head.prev = null;
+            } else {
+                tail = null;
+            }
+        } else if (node.equals(tail)) {
+            tail = node.prev;
+            tail.next = null;
+        } else {
+            node.prev.next = node.next;
+            node.next.prev = node.prev;
+        }
+        history.remove(node.id);
+    }
+
 }

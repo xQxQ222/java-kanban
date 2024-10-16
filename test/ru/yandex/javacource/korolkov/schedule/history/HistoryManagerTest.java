@@ -30,28 +30,35 @@ public class HistoryManagerTest {
     }
 
     @Test
-    public void isHistorySavePreviousTaskVersions() {
+    public void checkNodeLinks(){
         Task task = new Task("Тест", "Тест", TaskStatus.NEW);
         manager.addTask(task);
-        manager.getTaskById(1);
-        task.setName("Поменяно");
-        task.setStatus(TaskStatus.DONE);
-        manager.updateTask(task);
-        manager.getTaskById(1);
-        List<? extends Task> history = manager.getHistory();
-        assertEquals(TaskStatus.NEW, history.get(0).getTaskStatus());
-        assertEquals(TaskStatus.DONE, history.get(1).getTaskStatus());
-        assertEquals("Поменяно", history.get(1).getName());
-        assertEquals("Тест", history.get(0).getName());
+        Task task2 = new Task("Тест2", "Тест2", TaskStatus.NEW);
+        manager.addTask(task2);
+        Task task3 = new Task("Тест3", "Тест3", TaskStatus.NEW);
+        manager.addTask(task3);
+        for(int i=1;i<=3;i++)
+            manager.getTaskById(i);
+        List<? extends Task> history=manager.getHistory();
+        assertEquals(3,history.size());
+        Task lastTask=history.getLast();
+        assertEquals(task3,lastTask);
+
+        manager.getTaskById(2);
+        List<? extends Task> historyAfterShuffle=manager.getHistory();
+        assertEquals(3,historyAfterShuffle.size());
+        Task lastTaskAfterShuffle=historyAfterShuffle.getLast();
+        assertEquals(lastTaskAfterShuffle,task2);
     }
 
     @Test
-    public void testHistoryLimit() {
+    public void isHistorySaveRepeatedTasks() {
         Task task = new Task("Тест", "Тест", TaskStatus.NEW);
         manager.addTask(task);
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 10; i++) {
             manager.getTaskById(1);
         }
-        assertEquals(10, manager.getHistory().size());
+        var history=manager.getHistory();
+        assertEquals(1, history.size());
     }
 }
