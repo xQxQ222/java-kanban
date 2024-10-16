@@ -17,8 +17,8 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public List<Task> getHistory() {
-        List<Task> result=new ArrayList<>();
-        for(Node node : history.values()){
+        List<Task> result = new ArrayList<>();
+        for (Node node : history.values()) {
             result.add(node.value);
         }
         return result;
@@ -26,7 +26,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void add(Task task) {
-        int taskId=task.getId();
+        int taskId = task.getId();
 
         if (history.containsKey(taskId)) {
 
@@ -41,7 +41,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
         tail = node;
 
-        node.id=taskId;
+        node.id = taskId;
         history.put(taskId, node);
     }
 
