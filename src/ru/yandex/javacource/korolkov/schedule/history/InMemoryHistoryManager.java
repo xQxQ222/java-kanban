@@ -1,6 +1,5 @@
 package ru.yandex.javacource.korolkov.schedule.history;
 
-import ru.yandex.javacource.korolkov.schedule.manager.Node;
 import ru.yandex.javacource.korolkov.schedule.task.Task;
 
 import java.util.*;
@@ -11,15 +10,18 @@ public class InMemoryHistoryManager implements HistoryManager {
     public Node tail;
     public Node head;
 
+
     public InMemoryHistoryManager() {
-        history = new LinkedHashMap<>();
+        history = new HashMap<>();
     }
 
     @Override
     public List<Task> getHistory() {
         List<Task> result = new ArrayList<>();
-        for (Node node : history.values()) {
+        Node node = head;
+        while (node != null) {
             result.add(node.value);
+            node = node.next;
         }
         return result;
     }
@@ -27,26 +29,20 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public void add(Task task) {
         int taskId = task.getId();
-
-        if (history.containsKey(taskId)) {
-
-            removeNode(history.get(taskId));
-        }
-        Node node = new Node(task);
-        if (head == null) {
-            head = node;
-        } else {
-            tail.next = node;
-            node.prev = tail;
-        }
-        tail = node;
-
-        node.id = taskId;
-        history.put(taskId, node);
+        remove(taskId);
+        linkLast(task);
     }
 
     @Override
-    public void removeNode(Node node) {
+    public void remove(int id) {
+        final Node node = history.remove(id);
+        if (node == null) {
+            return;
+        }
+        removeNode(node);
+    }
+
+    private void removeNode(Node node) {
         if (node.equals(head)) {
             head = node.next;
             if (head != null) {
@@ -61,7 +57,43 @@ public class InMemoryHistoryManager implements HistoryManager {
             node.prev.next = node.next;
             node.next.prev = node.prev;
         }
-        history.remove(node.id);
+    }
+
+    private void linkLast(Task task) {
+        Node node = new Node(task);
+        if (head == null) {
+            head = node;
+        } else {
+            tail.next = node;
+            node.prev = tail;
+        }
+        tail = node;
+        history.put(task.getId(), node);
+    }
+
+    private class Node {
+        public Task value;
+        public Node prev;
+        public Node next;
+
+        public Node(Task value) {
+            this.value = value;
+            this.next = null;
+            this.prev = null;
+        }
+
+        @Override
+        public int hashCode() {
+            return value.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Node task = (Node) o;
+            return value.equals(task.value);
+        }
     }
 
 }
