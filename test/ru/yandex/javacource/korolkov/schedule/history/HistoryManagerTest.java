@@ -2,11 +2,13 @@ package ru.yandex.javacource.korolkov.schedule.history;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.yandex.javacource.korolkov.schedule.exceptions.ManagerSaveException;
 import ru.yandex.javacource.korolkov.schedule.manager.Managers;
 import ru.yandex.javacource.korolkov.schedule.manager.TaskManager;
 import ru.yandex.javacource.korolkov.schedule.task.Task;
 import ru.yandex.javacource.korolkov.schedule.task.TaskStatus;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +23,7 @@ public class HistoryManagerTest {
     }
 
     @Test
-    public void isHistorySaveAnything() {
+    public void isHistorySaveAnything() throws IOException, ManagerSaveException {
         Task task = new Task("Тест", "Тест", TaskStatus.NEW);
         manager.addTask(task);
         assertEquals(0, manager.getHistory().size());
@@ -30,7 +32,7 @@ public class HistoryManagerTest {
     }
 
     @Test
-    public void checkNodeLinks() {
+    public void checkNodeLinks() throws IOException, ManagerSaveException {
         Task task = new Task("Тест", "Тест", TaskStatus.NEW);
         manager.addTask(task);
         Task task2 = new Task("Тест2", "Тест2", TaskStatus.NEW);
@@ -52,7 +54,7 @@ public class HistoryManagerTest {
     }
 
     @Test
-    public void isHistorySaveRepeatedTasks() {
+    public void isHistorySaveRepeatedTasks() throws IOException, ManagerSaveException {
         Task task = new Task("Тест", "Тест", TaskStatus.NEW);
         manager.addTask(task);
         for (int i = 0; i < 10; i++) {

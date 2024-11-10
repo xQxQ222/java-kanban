@@ -1,25 +1,27 @@
 package ru.yandex.javacource.korolkov.schedule.manager;
 
+import ru.yandex.javacource.korolkov.schedule.exceptions.ManagerSaveException;
 import ru.yandex.javacource.korolkov.schedule.history.HistoryManager;
 import ru.yandex.javacource.korolkov.schedule.task.Epic;
 import ru.yandex.javacource.korolkov.schedule.task.Subtask;
 import ru.yandex.javacource.korolkov.schedule.task.Task;
 import ru.yandex.javacource.korolkov.schedule.task.TaskStatus;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class InMemoryTaskManager implements TaskManager {
+public class InMemoryTaskManager implements TaskManager {
 
-    private final Map<Integer, Task> tasks = new HashMap<>();
-    private final Map<Integer, Epic> epics = new HashMap<>();
-    private final Map<Integer, Subtask> subtasks = new HashMap<>();
+    protected final Map<Integer, Task> tasks = new HashMap<>();
+    protected final Map<Integer, Epic> epics = new HashMap<>();
+    protected final Map<Integer, Subtask> subtasks = new HashMap<>();
 
-    private final HistoryManager historyGetterWriter;
+    protected final HistoryManager historyGetterWriter;
 
-    private int newId = 0;
+    protected int newId = 0;
 
     public InMemoryTaskManager() {
         historyGetterWriter = Managers.getDefaultHistory();
@@ -31,12 +33,12 @@ public final class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteAllTasks() {
+    public void deleteAllTasks() throws IOException, ManagerSaveException {
         tasks.clear();
     }
 
     @Override
-    public void deleteAllSubtasks() {
+    public void deleteAllSubtasks() throws IOException, ManagerSaveException {
         for (Epic epic : epics.values()) {
             epic.clearSubtasksIds();
             updateEpic(epic);
@@ -45,18 +47,18 @@ public final class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteAllEpics() {
+    public void deleteAllEpics() throws IOException, ManagerSaveException {
         subtasks.clear();
         epics.clear();
     }
 
     @Override
-    public void deleteTaskById(int taskId) {
+    public void deleteTaskById(int taskId) throws IOException, ManagerSaveException {
         tasks.remove(taskId);
     }
 
     @Override
-    public void deleteSubtaskById(int subtaskId) {
+    public void deleteSubtaskById(int subtaskId) throws IOException, ManagerSaveException {
         Subtask subtask = subtasks.remove(subtaskId);
         if (subtask == null) {
             return;
@@ -67,7 +69,7 @@ public final class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteEpicById(int epicId) {
+    public void deleteEpicById(int epicId) throws IOException, ManagerSaveException {
         List<Integer> subtasksIds = epics.get(epicId).getSubtasksIds();
         while (!subtasksIds.isEmpty()) {
             deleteSubtaskById(subtasksIds.getFirst());
@@ -112,7 +114,7 @@ public final class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public int addTask(Task task) {
+    public int addTask(Task task) throws IOException, ManagerSaveException {
         if (task.getId() == -1) {
             int generatedId = generateId();
             task.setId(generatedId);
@@ -122,7 +124,7 @@ public final class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public int addSubtask(Subtask subtask) {
+    public int addSubtask(Subtask subtask) throws IOException, ManagerSaveException {
         int epicId = subtask.getEpicId();
         Epic epic = epics.get(epicId);
         int generatedId = -2;
@@ -139,7 +141,7 @@ public final class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public int addEpic(Epic epic) {
+    public int addEpic(Epic epic) throws IOException, ManagerSaveException {
         int generatedId = 0;
         if (epic.getId() == -1) {
             generatedId = generateId();
@@ -151,7 +153,7 @@ public final class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateTask(Task task) {
+    public void updateTask(Task task) throws IOException, ManagerSaveException {
         int id = task.getId();
         Task oldTask = tasks.get(id);
         if (oldTask != null) {
@@ -161,7 +163,7 @@ public final class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateSubtask(Subtask subtask) {
+    public void updateSubtask(Subtask subtask) throws IOException, ManagerSaveException {
         int id = subtask.getId();
         Subtask oldSubtask = subtasks.get(id);
         if (oldSubtask == null) {
@@ -177,7 +179,7 @@ public final class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateEpic(Epic epic) {
+    public void updateEpic(Epic epic) throws IOException, ManagerSaveException {
         Epic savedEpic = epics.get(epic.getId());
         if (savedEpic == null) {
             return;
@@ -199,7 +201,7 @@ public final class InMemoryTaskManager implements TaskManager {
         return tasks;
     }
 
-    private int generateId() {
+    protected int generateId() {
         int generatedId = ++newId;
         while (tasks.containsKey(generatedId) || subtasks.containsKey(generatedId) || epics.containsKey(generatedId)) {
             generatedId++;
@@ -207,7 +209,7 @@ public final class InMemoryTaskManager implements TaskManager {
         return generatedId;
     }
 
-    private void updateEpicStatus(Epic epic) {
+    protected void updateEpicStatus(Epic epic) {
         List<Subtask> epicSubtasks = getEpicSubtasks(epic.getId());
         List<TaskStatus> statuses = getSubtasksStatuses(epicSubtasks);
         if (statuses.isEmpty() || !(statuses.contains(TaskStatus.DONE) || statuses.contains(TaskStatus.IN_PROGRESS))) {
@@ -219,7 +221,7 @@ public final class InMemoryTaskManager implements TaskManager {
         }
     }
 
-    private List<TaskStatus> getSubtasksStatuses(List<Subtask> subtasks) {
+    protected List<TaskStatus> getSubtasksStatuses(List<Subtask> subtasks) {
         List<TaskStatus> statuses = new ArrayList<>();
         for (Subtask subtask : subtasks) {
             statuses.add(subtask.getTaskStatus());

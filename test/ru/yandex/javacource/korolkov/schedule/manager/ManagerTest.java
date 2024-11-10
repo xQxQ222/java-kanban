@@ -2,10 +2,13 @@ package ru.yandex.javacource.korolkov.schedule.manager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.yandex.javacource.korolkov.schedule.exceptions.ManagerSaveException;
 import ru.yandex.javacource.korolkov.schedule.task.Epic;
 import ru.yandex.javacource.korolkov.schedule.task.Subtask;
 import ru.yandex.javacource.korolkov.schedule.task.Task;
 import ru.yandex.javacource.korolkov.schedule.task.TaskStatus;
+
+import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,12 +18,12 @@ public class ManagerTest {
 
     @BeforeEach
     void initializeTaskManager() {
-        manager = Managers.getDefault();
+        manager = new InMemoryTaskManager();
     }
 
     //утилитарный класс всегда возвращает проинициализированные и готовые к работе экземпляры менеджеров
     @Test
-    public void uClassReturnValidManager() {
+    public void uClassReturnValidManager() throws IOException, ManagerSaveException {
         assertNotNull(manager);
         manager.addTask(new Task("Test", "Test", TaskStatus.NEW));
         assertEquals(1, manager.getAllTasks().size());
@@ -28,7 +31,7 @@ public class ManagerTest {
 
     //InMemoryTaskManager действительно добавляет задачи разного типа и может найти их по id
     @Test
-    public void isInMemoryTaskManagerWorkCorrectly() {
+    public void isInMemoryTaskManagerWorkCorrectly() throws IOException, ManagerSaveException {
         manager.addTask(new Task("Таск", "Таск", TaskStatus.NEW));
         manager.addEpic(new Epic("Epic", "Epic"));
         manager.addSubtask(new Subtask("Subtask", "Subtask", TaskStatus.NEW, 2));
@@ -39,7 +42,7 @@ public class ManagerTest {
 
     //задачи с заданным id и сгенерированным id не конфликтуют внутри менеджера;
     @Test
-    public void differentTaskIdGeneratingDidntConflict() {
+    public void differentTaskIdGeneratingDidntConflict() throws IOException, ManagerSaveException {
         TaskManager manager = Managers.getDefault();
 
         Task task1WithSetId = new Task("Task1", "Task1", TaskStatus.NEW);
@@ -61,7 +64,7 @@ public class ManagerTest {
 
     //проверяется неизменность задачи (по всем полям) при добавлении задачи в менеджер
     @Test
-    public void isTaskImmutableWhenAddedInManager() {
+    public void isTaskImmutableWhenAddedInManager() throws IOException, ManagerSaveException {
         Task task = new Task("Task", "Task", TaskStatus.NEW);
         task.setId(1);
         manager.addTask(task);

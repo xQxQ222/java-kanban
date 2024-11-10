@@ -1,5 +1,6 @@
 package ru.yandex.javacource.korolkov.schedule.history;
 
+import ru.yandex.javacource.korolkov.schedule.task.Subtask;
 import ru.yandex.javacource.korolkov.schedule.task.Task;
 
 import java.util.*;
@@ -28,9 +29,12 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void add(Task task) {
-        int taskId = task.getId();
-        remove(taskId);
-        linkLast(task);
+        if (task != null) {
+            int taskId = task.getId();
+            remove(taskId);
+            linkLast(task);
+            history.put(taskId, tail);
+        }
     }
 
     @Override
@@ -68,7 +72,6 @@ public class InMemoryHistoryManager implements HistoryManager {
             node.prev = tail;
         }
         tail = node;
-        history.put(task.getId(), node);
     }
 
     private class Node {
