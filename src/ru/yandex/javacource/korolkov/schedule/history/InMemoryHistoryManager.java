@@ -1,6 +1,5 @@
 package ru.yandex.javacource.korolkov.schedule.history;
 
-import ru.yandex.javacource.korolkov.schedule.task.Subtask;
 import ru.yandex.javacource.korolkov.schedule.task.Task;
 
 import java.util.*;
