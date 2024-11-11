@@ -1,144 +1,167 @@
 package ru.yandex.javacource.korolkov.schedule.manager;
 
+import ru.yandex.javacource.korolkov.schedule.exceptions.ManagerLoadException;
 import ru.yandex.javacource.korolkov.schedule.exceptions.ManagerSaveException;
-import ru.yandex.javacource.korolkov.schedule.task.Epic;
-import ru.yandex.javacource.korolkov.schedule.task.Subtask;
-import ru.yandex.javacource.korolkov.schedule.task.Task;
+import ru.yandex.javacource.korolkov.schedule.task.*;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final Path path;
-
+    private static final String HEADER = "id,type,name,status,description,epic";
 
     public FileBackedTaskManager(String stringPath) {
         path = Path.of(stringPath);
     }
 
-    static FileBackedTaskManager loadFromFile(File file) throws IOException, NullPointerException {
+    private static Task fromString(String value) {
+        String[] taskInfo = value.split(",");
+        TaskStatus valueStatus = taskInfo[3].equals("NEW") ? TaskStatus.NEW : (taskInfo[3].equals("DONE") ? TaskStatus.DONE : TaskStatus.IN_PROGRESS);
+        switch (taskInfo[1]) {
+            case "TASK":
+                return new Task(Integer.parseInt(taskInfo[0]), taskInfo[2], taskInfo[4], valueStatus);
+            case "SUBTASK":
+                return new Subtask(Integer.parseInt(taskInfo[0]), taskInfo[2], taskInfo[4], valueStatus, Integer.parseInt(taskInfo[5]));
+            case "EPIC":
+                return new Epic(Integer.parseInt(taskInfo[0]), taskInfo[2], taskInfo[4], valueStatus);
+            default:
+                return null;
+        }
+    }
+
+    static FileBackedTaskManager loadFromFile(File file) {
         FileBackedTaskManager res = new FileBackedTaskManager(file.getPath());
         if (Files.exists(res.path)) {
-            List<String> info = Files.readAllLines(res.path);
-            for (String item : info) {
-                Task task = Task.fromString(item);
-                if (task.getClass() == Task.class) {
+            List<String> info;
+            try {
+                info = Files.readAllLines(res.path);
+            } catch (IOException ex) {
+                throw new ManagerLoadException("Не удалось считать из файла: " + file.getName(), ex);
+            }
+            for (int i = 1; i < info.size(); i++) {
+                Task task = fromString(info.get(i));
+                if (task.getType() == TaskTypes.TASK) {
                     res.tasks.put(task.getId(), task);
-                } else if (task.getClass() == Epic.class) {
+                } else if (task.getType() == TaskTypes.EPIC) {
                     res.epics.put(task.getId(), (Epic) task);
                 } else {
-                    res.subtasks.put(task.getId(), (Subtask) task);
+                    Subtask subtask = (Subtask) task;
+                    res.epics.get(subtask.getEpicId()).addSubtask(subtask);
+                    res.subtasks.put(subtask.getId(), subtask);
                 }
             }
+            res.setNewId(info.size());
         }
         return res;
     }
 
-    private void save() throws IOException, ManagerSaveException, NullPointerException {
-        try (FileWriter writer = new FileWriter(path.toFile())) {
-            for (var item : tasks.values()) {
-                String itemInfo = item.toString();
-                if (itemInfo.isEmpty() || itemInfo.split(";").length < 5) {
-                    throw new ManagerSaveException("Произошла ошибка сохранения записи в файл");
-                }
-                writer.write(itemInfo + "\n");
+    private void save() {
+        File file = path.toFile();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write(HEADER);
+            writer.newLine();
+
+            for (Map.Entry<Integer, Task> entry : tasks.entrySet()) {
+                final Task task = entry.getValue();
+                writer.write(toString(task));
+                writer.newLine();
             }
-            for (var item : epics.values()) {
-                String itemInfo = item.toString();
-                if (itemInfo.isEmpty() || itemInfo.split(";").length < 5) {
-                    throw new ManagerSaveException("Произошла ошибка сохранения записи в файл");
-                }
-                writer.write(itemInfo + "\n");
+
+            for (Map.Entry<Integer, Subtask> entry : subtasks.entrySet()) {
+                final Task task = entry.getValue();
+                writer.write(toString(task));
+                writer.newLine();
             }
-            for (Subtask item : subtasks.values()) {
-                String itemInfo = item.toString();
-                if (itemInfo.isEmpty() || itemInfo.split(";").length < 5 || itemInfo.split(",").length > 6) {
-                    throw new ManagerSaveException("Произошла ошибка сохранения записи в файл");
-                }
-                writer.write(itemInfo + "\n");
+
+            for (Map.Entry<Integer, Epic> entry : epics.entrySet()) {
+                final Task task = entry.getValue();
+                writer.write(toString(task));
+                writer.newLine();
             }
-        } catch (IOException ex) {
-            throw new IOException("Ошибка работы с файлом");
-        } catch (ManagerSaveException ex) {
-            throw new ManagerSaveException("Ошибка сохранения записи");
-        } catch (NullPointerException ex) {
-            throw new NullPointerException("Был передан null");
+        } catch (IOException e) {
+            throw new ManagerSaveException("Can't save to file: " + file.getName(), e);
         }
     }
 
+    public static String toString(Task task) {
+        return task.getId() + "," + task.getType() + "," + task.getName() + "," + task.getStatus() + "," + task.getDescription() + "," + (task.getType().equals(TaskTypes.SUBTASK) ? ((Subtask) task).getEpicId() : "");
+    }
+
     @Override
-    public int addSubtask(Subtask subtask) throws IOException, ManagerSaveException {
+    public int addSubtask(Subtask subtask) {
         int id = super.addSubtask(subtask);
         save();
         return id;
     }
 
     @Override
-    public int addTask(Task task) throws IOException, ManagerSaveException {
+    public int addTask(Task task) {
         int id = super.addTask(task);
         save();
         return id;
     }
 
     @Override
-    public int addEpic(Epic epic) throws IOException, ManagerSaveException {
+    public int addEpic(Epic epic) {
         int id = super.addEpic(epic);
         save();
         return id;
     }
 
     @Override
-    public void updateTask(Task task) throws IOException, ManagerSaveException {
+    public void updateTask(Task task) {
         super.updateTask(task);
         save();
     }
 
     @Override
-    public void updateSubtask(Subtask subtask) throws IOException, ManagerSaveException {
+    public void updateSubtask(Subtask subtask) {
         super.updateSubtask(subtask);
         save();
     }
 
     @Override
-    public void updateEpic(Epic epic) throws IOException, ManagerSaveException {
+    public void updateEpic(Epic epic) {
         super.updateEpic(epic);
         save();
     }
 
     @Override
-    public void deleteAllTasks() throws IOException, ManagerSaveException {
+    public void deleteAllTasks() {
         super.deleteAllTasks();
         save();
     }
 
     @Override
-    public void deleteAllSubtasks() throws IOException, ManagerSaveException {
+    public void deleteAllSubtasks() {
         super.deleteAllSubtasks();
         save();
     }
 
     @Override
-    public void deleteAllEpics() throws IOException, ManagerSaveException {
+    public void deleteAllEpics() {
         super.deleteAllEpics();
         save();
     }
 
     @Override
-    public void deleteTaskById(int taskId) throws IOException, ManagerSaveException {
+    public void deleteTaskById(int taskId) {
         super.deleteTaskById(taskId);
         save();
     }
 
     @Override
-    public void deleteSubtaskById(int subtaskId) throws IOException, ManagerSaveException {
+    public void deleteSubtaskById(int subtaskId) {
         super.deleteSubtaskById(subtaskId);
         save();
     }
 
     @Override
-    public void deleteEpicById(int epicId) throws IOException, ManagerSaveException {
+    public void deleteEpicById(int epicId) {
         super.deleteEpicById(epicId);
         save();
     }

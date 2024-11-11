@@ -1,4 +1,5 @@
-1;TASK;Тест;NEW;Тест
-2;EPIC;Тест эпик;NEW;ТТТ
-3;SUBTASK;Тестовый саб;NEW;tertr;2
-4;SUBTASK;Тестовый саб 2;NEW;rwet;2
+id,type,name,status,description,epic
+1,TASK,Тест,NEW,Тест
+2,EPIC,Тест эпик,NEW,ТТТ
+3,SUBTASK,Тестовый саб,NEW,tertr,2
+4,SUBTASK,Тестовый саб 2,NEW,rwet,2

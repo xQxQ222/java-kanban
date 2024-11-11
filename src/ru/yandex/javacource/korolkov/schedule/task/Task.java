@@ -23,6 +23,10 @@ public class Task implements Cloned<Task> {
         this.status = status;
     }
 
+    public TaskTypes getType() {
+        return TaskTypes.TASK;
+    }
+
     public String getName() {
         return name;
     }
@@ -59,21 +63,6 @@ public class Task implements Cloned<Task> {
         this.status = status;
     }
 
-    public static Task fromString(String value) {
-        String[] taskInfo = value.split(";");
-        TaskStatus valueStatus = taskInfo[3].equals("NEW") ? TaskStatus.NEW : (taskInfo[3].equals("DONE") ? TaskStatus.DONE : TaskStatus.IN_PROGRESS);
-        switch (taskInfo[1]) {
-            case "TASK":
-                return new Task(taskInfo[2], taskInfo[4], valueStatus);
-            case "SUBTASK":
-                return new Subtask(Integer.parseInt(taskInfo[0]), taskInfo[2], taskInfo[4], valueStatus, Integer.parseInt(taskInfo[5]));
-            case "EPIC":
-                return new Epic(Integer.parseInt(taskInfo[0]), taskInfo[2], taskInfo[4], valueStatus);
-            default:
-                return null;
-        }
-    }
-
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
@@ -90,8 +79,12 @@ public class Task implements Cloned<Task> {
 
     @Override
     public String toString() {
-        String[] properties = new String[]{String.valueOf(id), String.valueOf(TaskTypes.TASK), name, String.valueOf(status), description};
-        return String.join(";", properties);
+        return "Task{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", id=" + id +
+                ", status=" + status +
+                "}";
     }
 
 

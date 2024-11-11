@@ -1,8 +1,6 @@
 package ru.yandex.javacource.korolkov.schedule.manager;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.javacource.korolkov.schedule.exceptions.ManagerSaveException;
 import ru.yandex.javacource.korolkov.schedule.task.Task;
 import ru.yandex.javacource.korolkov.schedule.task.TaskStatus;
 
@@ -25,7 +23,7 @@ public class FileBackedTaskManagerTest {
     }
 
     @Test
-    public void testReadingFromFile() throws IOException {
+    public void testReadingFromFile() {
         Path f = Path.of("test.csv");
         FileBackedTaskManager manager = FileBackedTaskManager.loadFromFile(f.toFile());
         assertEquals(1, manager.getAllTasks().size());
@@ -34,7 +32,7 @@ public class FileBackedTaskManagerTest {
     }
 
     @Test
-    public void testSavingTasks() throws IOException, ManagerSaveException {
+    public void testSavingTasks() throws IOException {
         Path f = Files.createTempFile("temp2", ".txt");
         FileBackedTaskManager manager = FileBackedTaskManager.loadFromFile(f.toFile());
         assertEquals(0, manager.getAllTasks().size());

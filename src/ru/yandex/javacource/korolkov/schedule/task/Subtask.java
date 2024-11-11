@@ -13,6 +13,11 @@ public class Subtask extends Task {
         this.epicId = epicId;
     }
 
+    @Override
+    public TaskTypes getType() {
+        return TaskTypes.SUBTASK;
+    }
+
     public int getEpicId() {
         return epicId;
     }
@@ -25,8 +30,13 @@ public class Subtask extends Task {
 
     @Override
     public String toString() {
-        String[] properties = new String[]{String.valueOf(id), String.valueOf(TaskTypes.SUBTASK), name, String.valueOf(status), description, String.valueOf(epicId)};
-        return String.join(";", properties);
+        return "Subtask{" +
+                "epicId=" + epicId +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", id=" + id +
+                ", status=" + status +
+                "}";
     }
 
     @Override
