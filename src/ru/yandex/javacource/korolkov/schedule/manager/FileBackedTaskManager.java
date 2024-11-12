@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
-    private final Path path;
     private static final String HEADER = "id,type,name,status,description,epic";
+    private final Path path;
 
     public FileBackedTaskManager(String stringPath) {
         path = Path.of(stringPath);
@@ -34,29 +34,36 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     static FileBackedTaskManager loadFromFile(File file) {
-        FileBackedTaskManager res = new FileBackedTaskManager(file.getPath());
-        if (Files.exists(res.path)) {
+        FileBackedTaskManager taskManager = new FileBackedTaskManager(file.getPath());
+        if (Files.exists(taskManager.path)) {
             List<String> info;
             try {
-                info = Files.readAllLines(res.path);
+                info = Files.readAllLines(taskManager.path);
             } catch (IOException ex) {
                 throw new ManagerLoadException("Не удалось считать из файла: " + file.getName(), ex);
             }
+            int generatorId = 0;
             for (int i = 1; i < info.size(); i++) {
                 Task task = fromString(info.get(i));
+                final int id = task.getId();
+                if (id > generatorId) {
+                    generatorId = id;
+                }
                 if (task.getType() == TaskTypes.TASK) {
-                    res.tasks.put(task.getId(), task);
+                    taskManager.tasks.put(task.getId(), task);
                 } else if (task.getType() == TaskTypes.EPIC) {
-                    res.epics.put(task.getId(), (Epic) task);
+                    taskManager.epics.put(task.getId(), (Epic) task);
                 } else {
                     Subtask subtask = (Subtask) task;
-                    res.epics.get(subtask.getEpicId()).addSubtask(subtask);
-                    res.subtasks.put(subtask.getId(), subtask);
+                    taskManager.subtasks.put(subtask.getId(), subtask);
                 }
             }
-            res.setNewId(info.size());
+            for (Subtask subtask : taskManager.subtasks.values()) {
+                taskManager.epics.get(subtask.getEpicId()).addSubtask(subtask);
+            }
+            taskManager.setNewId(generatorId);
         }
-        return res;
+        return taskManager;
     }
 
     private void save() {
