@@ -7,6 +7,8 @@ import ru.yandex.javacource.korolkov.schedule.task.TaskStatus;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -29,6 +31,8 @@ public class FileBackedTaskManagerTest {
         assertEquals(1, manager.getAllTasks().size());
         assertEquals(1, manager.getAllEpics().size());
         assertEquals(2, manager.getAllSubtasks().size());
+        Task task = new Task("adf", "sdadss", TaskStatus.NEW, Duration.ofMinutes(123), LocalDateTime.now());
+        manager.addTask(task);
     }
 
     @Test
@@ -36,7 +40,7 @@ public class FileBackedTaskManagerTest {
         Path f = Files.createTempFile("temp2", ".txt");
         FileBackedTaskManager manager = FileBackedTaskManager.loadFromFile(f.toFile());
         assertEquals(0, manager.getAllTasks().size());
-        Task testTask = new Task(1, "Test task", "ajksfhkj", TaskStatus.NEW);
+        Task testTask = new Task(1, "Test task", "ajksfhkj", TaskStatus.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         manager.addTask(testTask);
         assertEquals(1, manager.getAllTasks().size());
         FileBackedTaskManager secondManager = FileBackedTaskManager.loadFromFile(f.toFile());

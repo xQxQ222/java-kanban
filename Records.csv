@@ -1,2 +1,4 @@
-id,type,name,status,description,epic
-1,TASK,Тест,NEW,Тест
+id,type,name,status,description,duration,startTime,endTime,epic
+2,SUBTASK,named,NEW,sdad,10,15.11.2024;04:01:08,15.11.2024;04:11:08,1
+3,SUBTASK,names,NEW,late,5,15.11.2024;10:45:08,15.11.2024;10:50:08,1
+1,EPIC,afss,NEW,safds,15,15.11.2024;04:01:08,15.11.2024;10:50:08
