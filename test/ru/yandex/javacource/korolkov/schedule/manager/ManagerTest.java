@@ -36,7 +36,7 @@ public class ManagerTest {
     public void isInMemoryTaskManagerWorkCorrectly() throws IOException, ManagerSaveException {
         manager.addTask(new Task("Таск", "Таск", TaskStatus.NEW, Duration.ofMinutes(10), LocalDateTime.now()));
         manager.addEpic(new Epic("Epic", "Epic"));
-        manager.addSubtask(new Subtask("Subtask", "Subtask", TaskStatus.NEW, 2, Duration.ofMinutes(10), LocalDateTime.now()));
+        manager.addSubtask(new Subtask("Subtask", "Subtask", TaskStatus.NEW, 2, Duration.ofMinutes(10), LocalDateTime.now().plusMinutes(20)));
         assertNotSame(manager.getTaskById(1).getClass(), manager.getSubtaskById(3).getClass());
         assertNotSame(manager.getTaskById(1).getClass(), manager.getEpicById(2).getClass());
         assertEquals(Subtask.class, manager.getSubtaskById(3).getClass());
@@ -50,9 +50,9 @@ public class ManagerTest {
         Task task1WithSetId = new Task("Task1", "Task1", TaskStatus.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         task1WithSetId.setId(2);
 
-        Task task2GeneratedId = new Task("Task2", "Task2", TaskStatus.NEW, Duration.ofMinutes(10), LocalDateTime.now());
+        Task task2GeneratedId = new Task("Task2", "Task2", TaskStatus.NEW, Duration.ofMinutes(10), LocalDateTime.now().plusMinutes(20));
 
-        Task task3WithGeneratedId = new Task("Task3", "Task3", TaskStatus.NEW, Duration.ofMinutes(10), LocalDateTime.now());
+        Task task3WithGeneratedId = new Task("Task3", "Task3", TaskStatus.NEW, Duration.ofMinutes(10), LocalDateTime.now().plusMinutes(40));
 
         manager.addTask(task1WithSetId);
         manager.addTask(task2GeneratedId);

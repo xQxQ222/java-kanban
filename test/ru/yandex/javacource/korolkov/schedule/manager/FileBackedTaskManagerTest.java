@@ -28,7 +28,7 @@ public class FileBackedTaskManagerTest {
     public void testReadingFromFile() {
         Path f = Path.of("test.csv");
         FileBackedTaskManager manager = FileBackedTaskManager.loadFromFile(f.toFile());
-        assertEquals(1, manager.getAllTasks().size());
+        assertEquals(2, manager.getAllTasks().size());
         assertEquals(1, manager.getAllEpics().size());
         assertEquals(2, manager.getAllSubtasks().size());
         Task task = new Task("adf", "sdadss", TaskStatus.NEW, Duration.ofMinutes(123), LocalDateTime.now());

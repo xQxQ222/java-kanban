@@ -70,7 +70,7 @@ public class TaskTest {
 
         assertEquals(TaskStatus.DONE, epic.getStatus());
 
-        Subtask subtaskInProgress = new Subtask("df", "ijdkjfi", TaskStatus.IN_PROGRESS, 1, Duration.ofMinutes(10), LocalDateTime.now());
+        Subtask subtaskInProgress = new Subtask("df", "ijdkjfi", TaskStatus.IN_PROGRESS, 1, Duration.ofMinutes(10), LocalDateTime.now().plusMinutes(20));
         manager.addSubtask(subtaskInProgress);
 
         assertEquals(TaskStatus.IN_PROGRESS, epic.getStatus());

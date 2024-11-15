@@ -36,9 +36,9 @@ public class HistoryManagerTest {
     public void checkNodeLinks() throws IOException, ManagerSaveException {
         Task task = new Task("Тест", "Тест", TaskStatus.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         manager.addTask(task);
-        Task task2 = new Task("Тест2", "Тест2", TaskStatus.NEW, Duration.ofMinutes(10), LocalDateTime.now());
+        Task task2 = new Task("Тест2", "Тест2", TaskStatus.NEW, Duration.ofMinutes(10), LocalDateTime.now().plusMinutes(20));
         manager.addTask(task2);
-        Task task3 = new Task("Тест3", "Тест3", TaskStatus.NEW, Duration.ofMinutes(10), LocalDateTime.now());
+        Task task3 = new Task("Тест3", "Тест3", TaskStatus.NEW, Duration.ofMinutes(10), LocalDateTime.now().plusMinutes(40));
         manager.addTask(task3);
         for (int i = 1; i <= 3; i++)
             manager.getTaskById(i);
