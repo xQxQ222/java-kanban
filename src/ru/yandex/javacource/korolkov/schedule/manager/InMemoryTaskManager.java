@@ -293,6 +293,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     protected void canTaskBeAddedToTree(Task task) {
         boolean checkCross = prioritizedTasks.stream()
+                .filter(existedTask -> task != existedTask)
                 .anyMatch(existedTask -> isTimeCrossed.test(existedTask, task));
 
         if (checkCross) {
