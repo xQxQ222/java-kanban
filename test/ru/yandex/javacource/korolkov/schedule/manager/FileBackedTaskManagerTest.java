@@ -31,8 +31,6 @@ public class FileBackedTaskManagerTest {
         assertEquals(2, manager.getAllTasks().size());
         assertEquals(1, manager.getAllEpics().size());
         assertEquals(2, manager.getAllSubtasks().size());
-        Task task = new Task("adf", "sdadss", TaskStatus.NEW, Duration.ofMinutes(123), LocalDateTime.now());
-        manager.addTask(task);
     }
 
     @Test

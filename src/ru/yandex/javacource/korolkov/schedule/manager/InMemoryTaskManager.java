@@ -19,8 +19,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected final Map<Integer, Epic> epics = new HashMap<>();
     protected final Map<Integer, Subtask> subtasks = new HashMap<>();
     protected final TreeSet<Task> prioritizedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime));
-    protected final HistoryManager historyGetterWriter;
-    protected final ArrayList<String> crossedTasks = new ArrayList<>();
+    protected final HistoryManager historyManager;
 
     protected int newId = 0;
 
@@ -32,26 +31,26 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public InMemoryTaskManager() {
-        historyGetterWriter = Managers.getDefaultHistory();
+        historyManager = Managers.getDefaultHistory();
     }
 
     @Override
     public List<? extends Task> getHistory() {
-        return historyGetterWriter.getHistory();
+        return historyManager.getHistory();
     }
 
     @Override
     public void deleteAllTasks() {
-        prioritizedTasks.removeIf(task -> !(task instanceof Subtask || task instanceof Epic));
+        prioritizedTasks.removeIf(task -> task.getType() == TaskTypes.TASK);
         tasks.clear();
     }
 
     @Override
     public void deleteAllSubtasks() {
         epics.values().stream()
-                .peek(epic -> epic.clearSubtasksIds())
+                .peek(Epic::clearSubtasksIds)
                 .forEach(this::updateEpic);
-        prioritizedTasks.removeIf(task -> task instanceof Subtask);
+        prioritizedTasks.removeIf(task -> task.getType() == TaskTypes.SUBTASK);
         subtasks.clear();
     }
 
@@ -59,8 +58,8 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteAllEpics() {
         subtasks.clear();
         epics.clear();
-        prioritizedTasks.removeIf(task -> task instanceof Subtask);
-        prioritizedTasks.removeIf(task -> task instanceof Epic);
+        prioritizedTasks.removeIf(task -> task.getType() == TaskTypes.SUBTASK);
+        prioritizedTasks.removeIf(task -> task.getType() == TaskTypes.EPIC);
     }
 
     @Override
@@ -96,21 +95,21 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTaskById(int taskId) {
         Task task = tasks.get(taskId);
-        historyGetterWriter.add(task.getCopy());
+        historyManager.add(task.getCopy());
         return task;
     }
 
     @Override
     public Subtask getSubtaskById(int subtaskId) {
         Subtask subtask = subtasks.get(subtaskId);
-        historyGetterWriter.add(subtask.getCopy());
+        historyManager.add(subtask.getCopy());
         return subtask;
     }
 
     @Override
     public Epic getEpicById(int epicId) {
         Epic epic = epics.get(epicId);
-        historyGetterWriter.add(epic.getCopy());
+        historyManager.add(epic.getCopy());
         return epic;
     }
 
@@ -131,12 +130,11 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int addTask(Task task) {
-        if (task.getId() == -1) {
-            int generatedId = generateId();
-            task.setId(generatedId);
-        }
+        int generatedId = generateId();
+        task.setId(generatedId);
+        prioritizedTasks.add(task);
         tasks.put(task.getId(), task);
-        addToTaskTree(task);
+        canTaskBeAddedToTree(task);
         return task.getId();
     }
 
@@ -146,12 +144,11 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epics.get(epicId);
         int generatedId = -2;
         if (epic != null) {
-            if (subtask.getId() == -1) {
-                generatedId = generateId();
-                subtasks.put(generatedId, subtask);
-                addToTaskTree(subtask);
-                subtask.setId(generatedId);
-            }
+            generatedId = generateId();
+            prioritizedTasks.add(subtask);
+            subtasks.put(generatedId, subtask);
+            canTaskBeAddedToTree(subtask);
+            subtask.setId(generatedId);
             epic.addSubtask(subtask);
             updateEpicStatus(epic);
             updateEpicTimeProperties(epic);
@@ -162,12 +159,11 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public int addEpic(Epic epic) {
         int generatedId = 0;
-        if (epic.getId() == -1) {
-            generatedId = generateId();
-            epics.put(generatedId, epic);
-            addToTaskTree(epic);
-            epic.setId(generatedId);
-        }
+        generatedId = generateId();
+        prioritizedTasks.add(epic);
+        epics.put(generatedId, epic);
+        canTaskBeAddedToTree(epic);
+        epic.setId(generatedId);
         epics.put(epic.getId(), epic);
         return epic.getId();
     }
@@ -295,13 +291,12 @@ public class InMemoryTaskManager implements TaskManager {
     protected BiPredicate<Task, Task> isTimeCrossed = (t1, t2) -> ((t1.getStartTime().isBefore(t2.getEndTime()) || t1.getStartTime().isEqual(t2.getEndTime())) &&
             (t1.getEndTime().isAfter(t2.getStartTime()) || t1.getEndTime().isEqual(t2.getStartTime())));
 
-    protected void addToTaskTree(Task task) {
+    protected void canTaskBeAddedToTree(Task task) {
         boolean checkCross = prioritizedTasks.stream()
                 .anyMatch(existedTask -> isTimeCrossed.test(existedTask, task));
 
         if (checkCross) {
             throw new CrossedTasksException("При добавлении новой задачи появилось пересечение по времени");
         }
-        prioritizedTasks.add(task);
     }
 }
