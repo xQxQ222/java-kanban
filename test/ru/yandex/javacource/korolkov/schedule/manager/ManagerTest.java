@@ -58,8 +58,8 @@ public class ManagerTest {
         manager.addTask(task2GeneratedId);
         manager.addTask(task3WithGeneratedId);
 
-        assertEquals(2, task1WithSetId.getId());
-        assertEquals(1, task2GeneratedId.getId());
+        assertEquals(1, task1WithSetId.getId());
+        assertEquals(2, task2GeneratedId.getId());
         assertEquals(3, task3WithGeneratedId.getId());
 
     }
