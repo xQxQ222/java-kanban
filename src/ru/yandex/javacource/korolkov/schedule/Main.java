@@ -20,7 +20,6 @@ public class Main {
         manager.addEpic(new Epic("Сделать дз", "Сделать дз по всем предметам на завтра"));
         manager.addSubtask(new Subtask("Сделать русский язык", "Упражнение №1", TaskStatus.IN_PROGRESS, 2, Duration.ofMinutes(45), LocalDateTime.now().minusMinutes(100)));
         manager.addSubtask(new Subtask("asdf", "sadff", TaskStatus.IN_PROGRESS, 2, Duration.ofMinutes(40), LocalDateTime.now().minusMinutes(141)));
-        manager.addTask(new Task("Помыть пол", "Взять швабру и помыть пол", TaskStatus.NEW, Duration.ofMinutes(30), LocalDateTime.now()));
         manager.getTaskById(1);
         manager.getSubtaskById(3);
         System.out.println(manager.getHistory());
