@@ -16,11 +16,15 @@ public class Task implements Cloned<Task> {
         this.id = -1;
     }
 
-    public Task(String name, String description, TaskStatus status, int id) {
+    public Task(int id, String name, String description, TaskStatus status) {
         this.name = name;
         this.id = id;
         this.description = description;
         this.status = status;
+    }
+
+    public TaskTypes getType() {
+        return TaskTypes.TASK;
     }
 
     public String getName() {
@@ -86,6 +90,6 @@ public class Task implements Cloned<Task> {
 
     @Override
     public Task getCopy() {
-        return new Task(this.name, this.description, this.status, this.id);
+        return new Task(this.id, this.name, this.description, this.status);
     }
 }

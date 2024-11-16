@@ -6,7 +6,7 @@ import ru.yandex.javacource.korolkov.schedule.history.InMemoryHistoryManager;
 public class Managers {
 
     public static TaskManager getDefault() {
-        return new InMemoryTaskManager();
+        return new FileBackedTaskManager("Records.csv");
     }
 
     public static HistoryManager getDefaultHistory() {

@@ -11,14 +11,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class InMemoryTaskManager implements TaskManager {
-    private final Map<Integer, Task> tasks = new HashMap<>();
-    private final Map<Integer, Epic> epics = new HashMap<>();
-    private final Map<Integer, Subtask> subtasks = new HashMap<>();
+public class InMemoryTaskManager implements TaskManager {
 
-    private final HistoryManager historyGetterWriter;
+    protected final Map<Integer, Task> tasks = new HashMap<>();
+    protected final Map<Integer, Epic> epics = new HashMap<>();
+    protected final Map<Integer, Subtask> subtasks = new HashMap<>();
 
-    private int newId = 0;
+    protected final HistoryManager historyGetterWriter;
+
+    protected int newId = 0;
+
+    protected void setNewId(int newId) {
+        if (newId < 0) {
+            throw new IllegalArgumentException("Счетчик не должен начинаться с числа меньше нуля");
+        }
+        this.newId = newId;
+    }
 
     public InMemoryTaskManager() {
         historyGetterWriter = Managers.getDefaultHistory();
@@ -198,7 +206,7 @@ public final class InMemoryTaskManager implements TaskManager {
         return tasks;
     }
 
-    private int generateId() {
+    protected int generateId() {
         int generatedId = ++newId;
         while (tasks.containsKey(generatedId) || subtasks.containsKey(generatedId) || epics.containsKey(generatedId)) {
             generatedId++;
@@ -206,7 +214,7 @@ public final class InMemoryTaskManager implements TaskManager {
         return generatedId;
     }
 
-    private void updateEpicStatus(Epic epic) {
+    protected void updateEpicStatus(Epic epic) {
         List<Subtask> epicSubtasks = getEpicSubtasks(epic.getId());
         List<TaskStatus> statuses = getSubtasksStatuses(epicSubtasks);
         if (statuses.isEmpty() || !(statuses.contains(TaskStatus.DONE) || statuses.contains(TaskStatus.IN_PROGRESS))) {
@@ -218,7 +226,7 @@ public final class InMemoryTaskManager implements TaskManager {
         }
     }
 
-    private List<TaskStatus> getSubtasksStatuses(List<Subtask> subtasks) {
+    protected List<TaskStatus> getSubtasksStatuses(List<Subtask> subtasks) {
         List<TaskStatus> statuses = new ArrayList<>();
         for (Subtask subtask : subtasks) {
             statuses.add(subtask.getTaskStatus());

@@ -1,8 +1,11 @@
 package ru.yandex.javacource.korolkov.schedule.task;
 
 import org.junit.jupiter.api.Test;
+import ru.yandex.javacource.korolkov.schedule.exceptions.ManagerSaveException;
 import ru.yandex.javacource.korolkov.schedule.manager.Managers;
 import ru.yandex.javacource.korolkov.schedule.manager.TaskManager;
+
+import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -52,7 +55,7 @@ public class TaskTest {
 
     //тест автоматического расчета статуса эпика
     @Test
-    public void testChangeInEpicStatus() {
+    public void testChangeInEpicStatus() throws IOException, ManagerSaveException {
         TaskManager manager = Managers.getDefault();
 
         Epic epic = new Epic("Тест", "Тест");
