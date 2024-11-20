@@ -6,6 +6,8 @@ import ru.yandex.javacource.korolkov.schedule.manager.Managers;
 import ru.yandex.javacource.korolkov.schedule.manager.TaskManager;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -15,8 +17,8 @@ public class TaskTest {
     //экземпляры класса Task равны друг другу, если равен их id
     @Test
     public void checkEqualsOfTwoTaskById() {
-        Task taskA = new Task("Помыть посуду", "С мылом", TaskStatus.NEW);
-        Task taskB = new Task("Сделать уроки", "Русский язык, математика, чтение", TaskStatus.IN_PROGRESS);
+        Task taskA = new Task("Помыть посуду", "С мылом", TaskStatus.NEW, Duration.ofMinutes(10), LocalDateTime.now());
+        Task taskB = new Task("Сделать уроки", "Русский язык, математика, чтение", TaskStatus.IN_PROGRESS, Duration.ofMinutes(10), LocalDateTime.now());
         taskA.setId(1);
         taskB.setId(2);
         assertNotEquals(taskA, taskB);
@@ -28,7 +30,7 @@ public class TaskTest {
     @Test
     public void checkEqualsOfTwoHeirsOfTaskById() {
         Epic epic = new Epic("Построить дом", "Построить дом с баней из дерева");
-        Subtask subtask = new Subtask("Заложить фундамент", "Замешать цемент, и выложить фундамент", TaskStatus.NEW, epic.getId());
+        Subtask subtask = new Subtask("Заложить фундамент", "Замешать цемент, и выложить фундамент", TaskStatus.NEW, epic.getId(), Duration.ofMinutes(10), LocalDateTime.now());
         epic.setId(1);
         subtask.setId(2);
         assertNotEquals(epic, subtask);
@@ -47,7 +49,7 @@ public class TaskTest {
     //объект Subtask нельзя сделать своим же эпиком
     @Test
     public void canSubtaskBeOwnEpic() {
-        Subtask subtask = new Subtask("Помыть посуду", "Помыть сковородки, тарелки и т.д", TaskStatus.NEW, 0);
+        Subtask subtask = new Subtask("Помыть посуду", "Помыть сковородки, тарелки и т.д", TaskStatus.NEW, 0, Duration.ofMinutes(10), LocalDateTime.now());
         subtask.setId(1);
         subtask.setEpicId(subtask.getId());
         assertNotEquals(subtask.getId(), subtask.getEpicId());
@@ -63,12 +65,12 @@ public class TaskTest {
 
         assertEquals(TaskStatus.NEW, epic.getStatus());
 
-        Subtask subtaskDone = new Subtask("jh", "dfg", TaskStatus.DONE, 1);
+        Subtask subtaskDone = new Subtask("jh", "dfg", TaskStatus.DONE, 1, Duration.ofMinutes(10), LocalDateTime.now());
         manager.addSubtask(subtaskDone);
 
         assertEquals(TaskStatus.DONE, epic.getStatus());
 
-        Subtask subtaskInProgress = new Subtask("df", "ijdkjfi", TaskStatus.IN_PROGRESS, 1);
+        Subtask subtaskInProgress = new Subtask("df", "ijdkjfi", TaskStatus.IN_PROGRESS, 1, Duration.ofMinutes(10), LocalDateTime.now().plusMinutes(20));
         manager.addSubtask(subtaskInProgress);
 
         assertEquals(TaskStatus.IN_PROGRESS, epic.getStatus());

@@ -36,18 +36,20 @@ public interface TaskManager {
 
     List<Epic> getAllEpics();
 
-    int addTask(Task task) throws IOException, ManagerSaveException;
+    int addTask(Task task);
 
-    int addSubtask(Subtask subtask) throws IOException, ManagerSaveException;
+    int addSubtask(Subtask subtask);
 
-    int addEpic(Epic epic) throws IOException, ManagerSaveException;
+    int addEpic(Epic epic);
 
-    void updateTask(Task task) throws IOException, ManagerSaveException;
+    void updateTask(Task task);
 
-    void updateSubtask(Subtask subtask) throws IOException, ManagerSaveException;
+    void updateSubtask(Subtask subtask);
 
-    void updateEpic(Epic epic) throws IOException, ManagerSaveException;
+    void updateEpic(Epic epic);
 
     List<Subtask> getEpicSubtasks(int epicId);
+
+    List<Task> getPrioritizedTasks();
 
 }

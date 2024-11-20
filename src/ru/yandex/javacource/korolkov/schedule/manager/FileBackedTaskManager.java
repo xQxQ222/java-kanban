@@ -7,25 +7,30 @@ import ru.yandex.javacource.korolkov.schedule.task.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Stream;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
-    private static final String HEADER = "id,type,name,status,description,epic";
+    private static final String HEADER = "id,type,name,status,description,duration,startTime,endTime,epic";
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy;HH:mm:ss");
     private final Path path;
 
     public FileBackedTaskManager(String stringPath) {
         path = Path.of(stringPath);
     }
 
-    private static Task fromString(String value) {
+    protected static Task fromString(String value) {
         String[] taskInfo = value.split(",");
         TaskStatus valueStatus = taskInfo[3].equals("NEW") ? TaskStatus.NEW : (taskInfo[3].equals("DONE") ? TaskStatus.DONE : TaskStatus.IN_PROGRESS);
         switch (taskInfo[1]) {
             case "TASK":
-                return new Task(Integer.parseInt(taskInfo[0]), taskInfo[2], taskInfo[4], valueStatus);
+                return new Task(Integer.parseInt(taskInfo[0]), taskInfo[2], taskInfo[4], valueStatus, Duration.ofMinutes(Integer.parseInt(taskInfo[5])), LocalDateTime.parse(taskInfo[6], FORMATTER));
             case "SUBTASK":
-                return new Subtask(Integer.parseInt(taskInfo[0]), taskInfo[2], taskInfo[4], valueStatus, Integer.parseInt(taskInfo[5]));
+                return new Subtask(Integer.parseInt(taskInfo[0]), taskInfo[2], taskInfo[4], valueStatus, Integer.parseInt(taskInfo[8]), Duration.ofMinutes(Integer.parseInt(taskInfo[5])), LocalDateTime.parse(taskInfo[6], FORMATTER));
             case "EPIC":
                 return new Epic(Integer.parseInt(taskInfo[0]), taskInfo[2], taskInfo[4], valueStatus);
             default:
@@ -58,9 +63,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     taskManager.subtasks.put(subtask.getId(), subtask);
                 }
             }
+
             for (Subtask subtask : taskManager.subtasks.values()) {
                 taskManager.epics.get(subtask.getEpicId()).addSubtask(subtask);
             }
+
             taskManager.setNewId(generatorId);
         }
         return taskManager;
@@ -71,31 +78,25 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write(HEADER);
             writer.newLine();
-
-            for (Map.Entry<Integer, Task> entry : tasks.entrySet()) {
-                final Task task = entry.getValue();
-                writer.write(toString(task));
-                writer.newLine();
-            }
-
-            for (Map.Entry<Integer, Subtask> entry : subtasks.entrySet()) {
-                final Task task = entry.getValue();
-                writer.write(toString(task));
-                writer.newLine();
-            }
-
-            for (Map.Entry<Integer, Epic> entry : epics.entrySet()) {
-                final Task task = entry.getValue();
-                writer.write(toString(task));
-                writer.newLine();
-            }
+            Stream.of(tasks.values(), subtasks.values(), epics.values())
+                    .flatMap(Collection::stream)
+                    .map(FileBackedTaskManager::toString)
+                    .forEach(taskString -> {
+                        try {
+                            writer.write(taskString);
+                            writer.newLine();
+                        } catch (IOException e) {
+                            throw new RuntimeException("Can't save to file: " + file.getName(), e);
+                        }
+                    });
         } catch (IOException e) {
             throw new ManagerSaveException("Can't save to file: " + file.getName(), e);
         }
     }
 
     public static String toString(Task task) {
-        return task.getId() + "," + task.getType() + "," + task.getName() + "," + task.getStatus() + "," + task.getDescription() + "," + (task.getType().equals(TaskTypes.SUBTASK) ? ((Subtask) task).getEpicId() : "");
+        String e = task.getId() + "," + task.getType() + "," + task.getName() + "," + task.getStatus() + "," + task.getDescription() + "," + task.getDuration().toMinutes() + "," + task.getStartTime().format(FORMATTER) + "," + task.getEndTime().format(FORMATTER) + (task.getType().equals(TaskTypes.SUBTASK) ? "," + ((Subtask) task).getEpicId() : "");
+        return e;
     }
 
     @Override
