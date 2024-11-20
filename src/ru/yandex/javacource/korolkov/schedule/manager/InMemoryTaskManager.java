@@ -1,6 +1,8 @@
 package ru.yandex.javacource.korolkov.schedule.manager;
 
 import ru.yandex.javacource.korolkov.schedule.exceptions.CrossedTasksException;
+import ru.yandex.javacource.korolkov.schedule.exceptions.NotFoundException;
+import ru.yandex.javacource.korolkov.schedule.exceptions.NullTaskException;
 import ru.yandex.javacource.korolkov.schedule.history.HistoryManager;
 import ru.yandex.javacource.korolkov.schedule.task.*;
 
@@ -95,21 +97,33 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTaskById(int taskId) {
         Task task = tasks.get(taskId);
-        historyManager.add(task.getCopy());
+        if (task != null) {
+            historyManager.add(task.getCopy());
+        } else {
+            throw new NotFoundException();
+        }
         return task;
     }
 
     @Override
     public Subtask getSubtaskById(int subtaskId) {
         Subtask subtask = subtasks.get(subtaskId);
-        historyManager.add(subtask.getCopy());
+        if (subtask != null) {
+            historyManager.add(subtask.getCopy());
+        } else {
+            throw new NotFoundException();
+        }
         return subtask;
     }
 
     @Override
     public Epic getEpicById(int epicId) {
         Epic epic = epics.get(epicId);
-        historyManager.add(epic.getCopy());
+        if (epic != null) {
+            historyManager.add(epic.getCopy());
+        } else {
+            throw new NotFoundException();
+        }
         return epic;
     }
 
@@ -130,6 +144,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int addTask(Task task) {
+        if (task == null) {
+            throw new NullTaskException();
+        }
         int generatedId = generateId();
         task.setId(generatedId);
         prioritizedTasks.add(task);
@@ -140,6 +157,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int addSubtask(Subtask subtask) {
+        if (subtask == null) {
+            throw new NullTaskException();
+        }
         int epicId = subtask.getEpicId();
         Epic epic = epics.get(epicId);
         int generatedId = -2;
@@ -152,19 +172,24 @@ public class InMemoryTaskManager implements TaskManager {
             epic.addSubtask(subtask);
             updateEpicStatus(epic);
             updateEpicTimeProperties(epic);
+        } else {
+            throw new NotFoundException();
         }
         return subtask.getId();
     }
 
     @Override
     public int addEpic(Epic epic) {
+        if (epic == null) {
+            throw new NullTaskException();
+        }
         int generatedId = 0;
         generatedId = generateId();
-        prioritizedTasks.add(epic);
-        epics.put(generatedId, epic);
-        canTaskBeAddedToTree(epic);
         epic.setId(generatedId);
-        epics.put(epic.getId(), epic);
+        Epic epicCopy = epic.getCopy();
+        prioritizedTasks.add(epicCopy);
+        epics.put(generatedId, epicCopy);
+        canTaskBeAddedToTree(epic);
         return epic.getId();
     }
 
@@ -173,8 +198,11 @@ public class InMemoryTaskManager implements TaskManager {
         int id = task.getId();
         Task oldTask = tasks.get(id);
         if (oldTask != null) {
-            tasks.put(id, task);
             task.setId(id);
+            canTaskBeAddedToTree(task);
+            tasks.put(id, task);
+        } else {
+            throw new NotFoundException();
         }
     }
 
@@ -183,13 +211,14 @@ public class InMemoryTaskManager implements TaskManager {
         int id = subtask.getId();
         Subtask oldSubtask = subtasks.get(id);
         if (oldSubtask == null) {
-            return;
+            throw new NotFoundException();
         }
         final Epic epic = epics.get(subtask.getEpicId());
         if (epic == null) {
-            return;
+            throw new NotFoundException();
         }
         subtask.setId(id);
+        canTaskBeAddedToTree(subtask);
         subtasks.put(id, subtask);
         updateEpicStatus(epic);
         updateEpicTimeProperties(epic);
@@ -199,7 +228,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void updateEpic(Epic epic) {
         Epic savedEpic = epics.get(epic.getId());
         if (savedEpic == null) {
-            return;
+            throw new NotFoundException();
         }
         savedEpic.setName(epic.getName());
         savedEpic.setDescription(epic.getDescription());
@@ -293,7 +322,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     protected void canTaskBeAddedToTree(Task task) {
         boolean checkCross = prioritizedTasks.stream()
-                .filter(existedTask -> task != existedTask)
+                .filter(existedTask -> task.getId() != existedTask.getId())
+                .filter(existedTask -> task.getType() != TaskTypes.EPIC)
                 .anyMatch(existedTask -> isTimeCrossed.test(existedTask, task));
 
         if (checkCross) {

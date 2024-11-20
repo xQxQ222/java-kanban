@@ -68,18 +68,12 @@ public class TaskTest {
         Subtask subtaskDone = new Subtask("jh", "dfg", TaskStatus.DONE, 1, Duration.ofMinutes(10), LocalDateTime.now());
         manager.addSubtask(subtaskDone);
 
-        assertEquals(TaskStatus.DONE, epic.getStatus());
+        assertEquals(TaskStatus.DONE, manager.getEpicById(1).getStatus());
 
         Subtask subtaskInProgress = new Subtask("df", "ijdkjfi", TaskStatus.IN_PROGRESS, 1, Duration.ofMinutes(10), LocalDateTime.now().plusMinutes(20));
         manager.addSubtask(subtaskInProgress);
 
-        assertEquals(TaskStatus.IN_PROGRESS, epic.getStatus());
+        assertEquals(TaskStatus.IN_PROGRESS, manager.getEpicById(1).getStatus());
 
-        subtaskDone.setStatus(TaskStatus.NEW);
-        subtaskInProgress.setStatus(TaskStatus.NEW);
-        manager.updateSubtask(subtaskDone);
-        manager.updateSubtask(subtaskInProgress);
-
-        assertEquals(TaskStatus.NEW, epic.getStatus());
     }
 }

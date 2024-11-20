@@ -28,10 +28,10 @@ public class EpicCalcTest {
         Subtask s1 = new Subtask("named", "sdad", TaskStatus.NEW, 1, Duration.ofMinutes(10), LocalDateTime.now());
         assertEquals(LocalDateTime.of(0, 1, 1, 0, 0), epic.getEndTime());
         manager.addSubtask(s1);
-        assertEquals(s1.getEndTime(), epic.getEndTime());
+        assertEquals(s1.getEndTime(), manager.getEpicById(1).getEndTime());
         Subtask lateSub = new Subtask("names", "late", TaskStatus.NEW, 1, Duration.ofMinutes(5), LocalDateTime.now().plusMinutes(404));
         manager.addSubtask(lateSub);
-        assertEquals(lateSub.getEndTime(), epic.getEndTime());
+        assertEquals(lateSub.getEndTime(), manager.getEpicById(1).getEndTime());
     }
 
     @Test
@@ -40,13 +40,13 @@ public class EpicCalcTest {
         manager.addEpic(epic);
         Subtask s1 = new Subtask("named", "sdad", TaskStatus.NEW, 1, Duration.ofMinutes(10), LocalDateTime.now());
         manager.addSubtask(s1);
-        assertEquals(10, epic.getDuration().toMinutes());
+        assertEquals(10, manager.getEpicById(1).getDuration().toMinutes());
         Subtask lateSub = new Subtask("names", "late", TaskStatus.NEW, 1, Duration.ofMinutes(122), LocalDateTime.now().plusMinutes(404));
         manager.addSubtask(lateSub);
-        assertEquals(132, epic.getDuration().toMinutes());
+        assertEquals(132, manager.getEpicById(1).getDuration().toMinutes());
         Subtask done = new Subtask("names", "done", TaskStatus.DONE, 1, Duration.ofMinutes(100), LocalDateTime.now().plusMinutes(800));
         manager.addSubtask(done);
-        assertEquals(132, epic.getDuration().toMinutes());
+        assertEquals(132, manager.getEpicById(1).getDuration().toMinutes());
     }
 
 }

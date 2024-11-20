@@ -47,6 +47,6 @@ public class Subtask extends Task {
 
     @Override
     public Subtask getCopy() {
-        return new Subtask(this.name, this.description, this.status, this.epicId, this.duration, this.startTime);
+        return new Subtask(this.id, this.name, this.description, this.status, this.epicId, this.duration, this.startTime);
     }
 }
