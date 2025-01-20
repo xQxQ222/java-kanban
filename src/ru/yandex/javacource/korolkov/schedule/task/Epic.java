@@ -11,18 +11,29 @@ public class Epic extends Task {
     private ArrayList<Integer> subtasksIds;
 
     public Epic(String name, String description) {
-        super(name, description, TaskStatus.NEW, Duration.ofSeconds(0), LocalDateTime.now());
+        super(name, description, TaskStatus.NEW, Duration.ofSeconds(0), LocalDateTime.of(0, 1, 1, 0, 0));
         subtasksIds = new ArrayList<>();
     }
 
     public Epic(String name, String description, ArrayList<Integer> newSubtasksIds) {
-        super(name, description, TaskStatus.NEW, Duration.ofSeconds(0), LocalDateTime.now());
-        subtasksIds = newSubtasksIds;
+        super(name, description, TaskStatus.NEW, Duration.ofSeconds(0), LocalDateTime.of(0, 1, 1, 0, 0));
+        if (subtasksIds != null)
+            subtasksIds = newSubtasksIds;
+        else
+            subtasksIds = new ArrayList<>();
     }
 
     public Epic(int id, String name, String description, TaskStatus status) {
-        super(id, name, description, status, Duration.ofSeconds(0), LocalDateTime.now());
+        super(id, name, description, status, Duration.ofSeconds(0), LocalDateTime.of(0, 1, 1, 0, 0));
         subtasksIds = new ArrayList<>();
+    }
+
+    public Epic(int id, String name, String description, TaskStatus status, ArrayList<Integer> newSubtasksIds) {
+        super(id, name, description, TaskStatus.NEW, Duration.ofSeconds(0), LocalDateTime.of(0, 1, 1, 0, 0));
+        if (subtasksIds != null)
+            subtasksIds = newSubtasksIds;
+        else
+            subtasksIds = new ArrayList<>();
     }
 
     @Override
@@ -75,6 +86,6 @@ public class Epic extends Task {
 
     @Override
     public Epic getCopy() {
-        return new Epic(this.name, this.description, this.getSubtasksIds());
+        return new Epic(this.id, this.name, this.description, this.status, this.getSubtasksIds());
     }
 }
